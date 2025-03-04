@@ -17,6 +17,8 @@ void setup() {
   radio.openReadingPipe(0, address);
   radio.setPALevel(RF24_PA_MIN);       // Se puede aumentar la potencia si necesito mayor distancia
   // En potencias mas altas es recomendable utilizar un Bypass Capacitor entre Ground y 3.3V para obtener voltaje mas estable
+  // El ruido proveniente de la fuente es un problema comun en comunicacion RF que se soluciona con un capacitor
+  // Capacitores de 10uF o 100uF pueden funcionar bien
   radio.startListening();
 }
 
