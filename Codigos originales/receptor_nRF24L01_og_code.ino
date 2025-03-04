@@ -1,27 +1,22 @@
 //Fuente: https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/
-//EDICION DE PRUEBA
-/*
-* Arduino Wireless Communication Tutorial
-*       Example 1 - Receiver Code
-*                
-* by Dejan Nedelkovski, www.HowToMechatronics.com
-* 
-* Library: TMRh20/RF24, https://github.com/tmrh20/RF24/
-*/
+//Library: TMRh20/RF24, https://github.com/tmrh20/RF24/
 
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
 
+
+
 RF24 radio(7, 8); // CE, CSN
 
-const byte address[6] = "00001";
+const byte address[6] = "00001";   // Cualquier 5 letras funcionan
 
 void setup() {
   Serial.begin(9600);
   radio.begin();
   radio.openReadingPipe(0, address);
-  radio.setPALevel(RF24_PA_MIN);
+  radio.setPALevel(RF24_PA_MIN);       // Se puede aumentar la potencia si necesito mayor distancia
+  // En potencias mas altas es recomendable utilizar un Bypass Capacitor entre Ground y 3.3V para obtener voltaje mas estable
   radio.startListening();
 }
 
