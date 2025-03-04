@@ -1,5 +1,5 @@
 //Fuente: https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/
-
+//EDICION DE PRUEBA
 /*
 * Arduino Wireless Communication Tutorial
 *       Example 1 - Receiver Code
