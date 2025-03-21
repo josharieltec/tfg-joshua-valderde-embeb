@@ -21,7 +21,7 @@ const byte numSlaves = 2;
 const byte slaveAddress[numSlaves][5] = {
         // each slave needs a different address
                             {'R','x','A','A','A'},
-                            {'R','x','A','A','B'}
+//                            {'R','x','A','A','B'}
                         };
 
 RF24 radio(CE_PIN, CSN_PIN); // Create a Radio

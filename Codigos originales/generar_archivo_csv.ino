@@ -31,29 +31,41 @@ float sensorReading3 = 0.00;
 File sensorData;
 
 
+
+
+//---------------Inicis y verifica SD----------------------------------------
 void setup()
 {
-// Open serial communications
 Serial.begin(9600);
 Serial.print("Initializing SD card...");
 pinMode(CSpin, OUTPUT);
-//
 // see if the card is present and can be initialized:
 if (!SD.begin(CSpin)) {
 Serial.println("Card failed, or not present");
-// don't do anything more:
 return;
 }
 Serial.println("card initialized.");
 }
-//
+
+
+
+
+
+//----------------- Escribe a la SD -------------------------------------------
 void loop(){
 // build the data string
 dataString = String(sensorReading1) + "," + String(sensorReading2) + "," + String(sensorReading3); // convert to CSV
 saveData(); // save to SD card
 delay(60000); // delay before next write to SD Card, adjust as required
 }
-//
+
+
+
+
+
+
+
+//-------------------  Proceso de escritura  ----------------------------------------
 void saveData(){
 if(SD.exists("data.csv")){ // check the card is still there
 // now append new data file

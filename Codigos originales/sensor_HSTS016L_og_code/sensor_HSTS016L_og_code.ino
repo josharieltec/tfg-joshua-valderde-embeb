@@ -2,15 +2,36 @@
 
 
 // --------------DEFINICION DE PINES Y CONSTANTES-------------------------------------
-int currentAnalogInputPin = A1;   // pin para medir corriente (A0 is reserved for LCD Display Shield Button function)
-int calibrationPin = A2;          //  pin para calibrar offset middle value
-float manualOffset = 0.00;        // valor para cambio manual del offset the initial value
-float mVperAmpValue = 12.5;       // If using “Hall-Effect” Current Transformer, key in value using this formula: mVperAmp = maximum voltage range (in milli volt) / current rating of CT
-float supplyVoltage = 3300;  // Yo voy a usar NANO entonces es 3300mV
+int currentAnalogInputPin = A1;   // (yellow = Vout)  pin para medir corriente (A0 is reserved for LCD Display Shield Button function)
+int calibrationPin = A2;          //(white = Vref)  pin para calibrar offset middle value
+float manualOffset = 0.00;        // (black = 0V = ground) valor para cambio manual del offset the initial value
+float mVperAmpValue = 25.00;       //  If using “Hall-Effect” Current Transformer, key in value using this formula: mVperAmp = maximum voltage range (in milli volt) / current rating of CT
+// maximum voltage range = 0.625V
+// current rating of CT = 30A
+// mVperAmpValue = 625/30 = 20.83 mV
+
+// 2500 / 200 = 12.5
+// 2500 / 30 = 83,30  (me da valores muy malos)
+
+
+
+
+float supplyVoltage = 5000;  // (red = 5V o 3.3V) 
 // maximum supply voltage, Arduino Uno or Mega is 5000mV while Arduino Nano or Node MCU is 3300mV
 
+int decimalPrecision = 2; // Cantidad de decimales a mostrar, ESTO NO ESTABA ANTES
+/*
 
+We connect RED to 5V input, BLACK to ground, YELLOW to analog pin A1, 
+and WHITE to analog pin A2. 
 
+It is highly recommended to use a 12V power adapter to power the Arduino Uno 
+and the sensor. 
+
+Using a 5V power supply over USB will have an initial OFFSET VALUE, 
+you may need to manually add the offset value when uploading the code.
+
+*/
 
 
 // ------------------VARIABLES PARA EL PROCESAMIENTO DE SENALES------------------------------------------
@@ -72,9 +93,9 @@ void loop()
             
             
             // ------------------------ MOSTRAR RESULTADOS ----------------------------------------------
-            Serial.print(” La corriente RMS es: “);      // NOTA: LAS COMILLAS PUEDEN ESTAR MAL ESCRITAS
+            Serial.print(" La corriente RMS es:  ");      // NOTA: LAS COMILLAS PUEDEN ESTAR MAL ESCRITAS
             Serial.print(FinalRMSCurrent,decimalPrecision);
-            Serial.println(” A “);
+            Serial.println(" A ");
             currentSampleSum =0;        // Se reinician los valores acumulados para el siguiente ciclo de medicion
             currentSampleCount=0;                               
           }

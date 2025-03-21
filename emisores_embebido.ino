@@ -9,7 +9,7 @@ const byte receptorAddress[5] = {'R', 'x', 'C', 'T', 'R'};  // Dirección centra
 
 RF24 radio(CE_PIN, CSN_PIN);
 
-#define TRANSMITTER_ID 1  // ⚠️ CAMBIA ESTE NÚMERO (1 a 19) EN CADA TRANSMISOR
+#define TRANSMITTER_ID 1  // ⚠️ CAMBIAR ESTE NÚMERO (1 a 19) EN CADA TRANSMISOR
 
 char dataToSend[10] = "TxX_000";  // Mensaje base, la 'X' se reemplazará por TRANSMITTER_ID
 
