@@ -64,6 +64,7 @@ void setup()                                 // codes to run once
 
 
 //----------------------------  ADQUIRIR MUESTRAS  -----------------------------------------------------
+// Proceso para medir la corriente
 void loop()
 {
         if(micros() >= currentLastSample + 200)              // toma una lectura cada 0.2ms, son 5000 muestras por segundo

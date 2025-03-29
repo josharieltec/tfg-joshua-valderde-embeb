@@ -17,7 +17,7 @@
 #define CE_PIN   9
 #define CSN_PIN 10
 
-const byte numSlaves = 2;
+const byte numSlaves = 2;               // ESTO NO ESTA EN MI CODIGO NUEVO
 const byte slaveAddress[numSlaves][5] = {
         // each slave needs a different address
                             {'R','x','A','A','A'},
@@ -26,6 +26,8 @@ const byte slaveAddress[numSlaves][5] = {
 
 RF24 radio(CE_PIN, CSN_PIN); // Create a Radio
 
+
+// ESTO ES PARA EL MENSAJE DE PRUEBA, NO ES NADA DE COMUNICACION
 //~ char dataToSend[10] = "Message 0";
 char dataToSend[10] = "ToSlvN  0";
 char txNum = '0';
@@ -36,8 +38,14 @@ unsigned long currentMillis;
 unsigned long prevMillis;
 unsigned long txIntervalMillis = 1000; // send once per second
 
-//===============
 
+
+
+
+
+
+
+// Inicializar comunicacion RF
 void setup() {
 
     Serial.begin(9600);
@@ -53,8 +61,7 @@ void setup() {
         // radio.openWritingPipe(slaveAddress); -- moved to loop()
 }
 
-//=============
-
+// PARTE DEL MENSAJE DE PRUEBA, NO ES PARTE DE LA COMUNICACION
 void loop() {
 
     currentMillis = millis();
