@@ -1,126 +1,85 @@
-
-// Librerias
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
 
+// ------------------ Configuración de pines y constantes ------------------
+int currentAnalogInputPin = A1;   // (yellow = Vout)  pin para medir corriente
+int calibrationPin = A2;          // (white = Vref)  pin para calibrar offset
+float manualOffset = 0.00;        // Offset de calibración manual
+float mVperAmpValue = 25.00;      // Sensibilidad del sensor en mV por Amp
 
-// Iniciar modulo nRF24L01
-#define CE_PIN   9
-#define CSN_PIN 10
-const byte thisSlaveAddress[5] = {'R','x','A','A','A'};
-RF24 radio(CE_PIN, CSN_PIN);
+float supplyVoltage = 5000;       // Voltaje de referencia para medición (5000mV para Arduino Nano)
+int decimalPrecision = 2;         // Número de decimales a mostrar
 
-
-// Estructura para los datos que se van a  enviar
-struct CurrentData {
-    float current1;
-//    float current2;    // LO AGREGO SI VOY A ENVIAR VARIAS CORRIENTES
-};
-CurrentData dataToSend;
-
-
-
-
-
-
-// Pines del sensor de corriente
-int currentAnalogInputPin = A1;  
-int calibrationPin = A2;          
-float manualOffset = 0.00;        
-float mVperAmpValue = 25.00;  // Lo puedo cambiar para mejor presicion    
-float supplyVoltage = 5000;  
-int decimalPrecision = 2;
-// Variables para medicion de corriente
+// Variables de procesamiento de señales
 float offsetSampleRead = 0;        
-float currentSampleRead  = 0;     
-float currentLastSample  = 0;     
-float currentSampleSum   = 0;     
+float currentSampleRead = 0;     
+float currentLastSample = 0;     
+float currentSampleSum = 0;     
 float currentSampleCount = 0;     
 float currentMean;            
 float RMSCurrentMean;             
-float FinalRMSCurrent;            
+float FinalRMSCurrent;           
 
+// ------------------- Configuración del módulo nRF24L01 ------------------
+RF24 radio(9, 10);  // Pines CE y CSN
+const byte direccion[6] = {'R','x','A','A','A'};  // Misma dirección que en el receptor
 
+// Estructura de datos a enviar
+struct DataPacket {
+    float current1;
+};
+DataPacket dataToSend;
 
+// ------------------- Configuración ----------------------------------------------
+void setup() {              
+    Serial.begin(9600);                 // Inicializa el monitor serial
 
-
-
-
-
-
-
-
-
-
-
-
-// Inicializar comunicacion RF
-void setup() {
-    Serial.begin(9600);
-    Serial.println("Emisor nRF24L01 + Medición de corriente");
-
+    // Configuración del módulo nRF24L01
     radio.begin();
-    radio.setDataRate(RF24_250KBPS);
-    radio.openWritingPipe(thisSlaveAddress);    // ESTAS DOS ULTIMAS LINEAS SON DISTINTAS AL OTRO TRANSMISOR
-    radio.stopListening();
+    radio.setDataRate(RF24_250KBPS);   // Configurar la misma tasa de datos que el receptor
+    radio.openWritingPipe(direccion);
+    radio.setPALevel(RF24_PA_LOW);
+    radio.stopListening();  // Configurado como transmisor
 }
 
-
-
-
-// Ciclo que mide la corriente y envia el dato
+// ------------------ Adquisición de datos y transmisión ------------------
 void loop() {
-    measureCurrent();
-    sendData();
-    delay(1000);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-// Proceso para medir la corriente
-void measureCurrent() {
-    if (micros() >= currentLastSample + 200) {
-        currentSampleRead = analogRead(currentAnalogInputPin) - analogRead(calibrationPin);
-        currentSampleSum += sq(currentSampleRead);
-        currentSampleCount++;
-        currentLastSample = micros();
+    // --------------- ADQUIRIR MUESTRAS ----------------------
+    if (micros() >= currentLastSample + 200) { // 5000 muestras por segundo
+        currentSampleRead = analogRead(currentAnalogInputPin) - analogRead(calibrationPin); // Lectura y calibración
+        currentSampleSum += sq(currentSampleRead);  // Acumula los valores al cuadrado
+        currentSampleCount++;  // Incrementa el contador de muestras
+        currentLastSample = micros();  // Actualiza el tiempo de la última muestra
     }
 
-    if (currentSampleCount == 4000) {
-        currentMean = currentSampleSum / currentSampleCount;
-        RMSCurrentMean = sqrt(currentMean);
-        FinalRMSCurrent = (((RMSCurrentMean / 1023) * supplyVoltage) / mVperAmpValue) - manualOffset;
+    // --------------- PROCESAR Y ENVIAR DATOS CADA 4000 MUESTRAS (0.8s) ---------------
+    if (currentSampleCount == 4000) {         
+        currentMean = currentSampleSum / currentSampleCount;                
+        RMSCurrentMean = sqrt(currentMean);  // Calcula RMS
+        FinalRMSCurrent = (((RMSCurrentMean / 1023) * supplyVoltage) / mVperAmpValue) - manualOffset; // Convierte a Amperios
 
+        // Si la corriente medida es menor al 1% de la capacidad del sensor, se asume como 0A 
         if (FinalRMSCurrent <= (625 / mVperAmpValue / 100)) {
             FinalRMSCurrent = 0;
         }
 
+        // ------------------------ MOSTRAR RESULTADOS ------------------------
+        Serial.print("Enviado: ");
+        Serial.print(FinalRMSCurrent, decimalPrecision);
+        Serial.println(" A");
+
+        // ------------------------ TRANSMITIR DATOS ------------------------
         dataToSend.current1 = FinalRMSCurrent;
-     //   dataToSend.current2 = 0;  // CREO QUE ESTO NO ESTA HACIENDO NADA, LO PUEDO ELIMINAR
+        
+        if (radio.write(&dataToSend, sizeof(dataToSend))) {
+            Serial.println("Transmisión exitosa");
+        } else {
+            Serial.println("Error en la transmisión");
+        }
 
-
-        currentSampleSum = 0;
-        currentSampleCount = 0;
+        // Reiniciar valores acumulados para el siguiente ciclo de medición
+        currentSampleSum = 0;        
+        currentSampleCount = 0;                               
     }
-}
-
-
-
-
-// Proceso para enviar datos
-void sendData() {
-    radio.write(&dataToSend, sizeof(dataToSend));
-    Serial.print("Enviado: ");
-    Serial.print(dataToSend.current1, decimalPrecision);
-    Serial.println(" A");
 }
