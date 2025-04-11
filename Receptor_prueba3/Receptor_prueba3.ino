@@ -28,7 +28,7 @@ bool newData = false;
 int currentAnalogInputPin = A1;  
 int calibrationPin = A2;          
 float manualOffset = 0.00;        
-float mVperAmpValue = 25.00;      
+float mVperAmpValue = 20.83;      
 float supplyVoltage = 5000;  
 int decimalPrecision = 2;
 // Variables para procesamiento de corriente
