@@ -6,6 +6,8 @@
 
 
 // Iniciar modulo nRF24L01
+pinMode(10, OUTPUT); // Obligatorio para modo maestro, AL PARECER ES OBLIGATORIO UTILIZAR ESTO AUNQUE NO QUIERA UTILIZAR EL PIN 10
+
 #define CE_PIN   9
 #define CSN_PIN 10
 const byte thisSlaveAddress[5] = {'R','x','A','A','A'};
